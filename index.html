@@ -2,320 +2,111 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>BBB Tank Services — Lessons Learned!</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
+html,body{height:100%;overflow:hidden;touch-action:none;}
 body{
   font-family:'Segoe UI',Arial,sans-serif;
-  background:#0f1923;
-  color:#fff;
-  height:100vh;
-  overflow:hidden;
-  user-select:none;
-  -webkit-user-select:none;
+  background:#0f1923;color:#fff;
+  user-select:none;-webkit-user-select:none;
 }
-
-/* ── HEADER ── */
 #header{
-  background:#0a1219;
-  border-bottom:3px solid #f59e0b;
-  padding:8px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  height:58px;
+  background:#0a1219;border-bottom:3px solid #f59e0b;
+  padding:8px 20px;display:flex;justify-content:space-between;align-items:center;height:58px;
 }
 .logo{font-size:20px;font-weight:800;color:#f59e0b;letter-spacing:1px;}
 .logo-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;}
 #timer{font-family:monospace;font-size:38px;font-weight:700;color:#f59e0b;}
 #timer.urgent{color:#ef4444;animation:blink .5s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
-/* ── GAME AREA ── */
-#game-area{
-  display:flex;
-  height:calc(100vh - 58px);
-  position:relative;
-}
+#game-area{display:flex;height:calc(100vh - 58px);position:relative;}
+#cards-zone{position:relative;flex:1;min-width:0;overflow:hidden;}
 
-/* ── CARD ZONE ── */
-#cards-zone{
-  position:relative;
-  flex:1;
-  min-width:0;
-}
-
-/* ── LESSON CARDS ── */
 .lesson-card{
-  position:absolute;
-  background:#fff;
-  color:#1f2937;
-  border-radius:10px;
-  padding:10px 12px;
-  width:158px;
-  cursor:grab;
+  position:absolute;background:#fff;color:#1f2937;
+  border-radius:10px;padding:10px 12px;width:158px;
   border:2px solid #e5e7eb;
   box-shadow:0 3px 12px rgba(0,0,0,.45);
-  transition:box-shadow .15s,transform .15s;
-  z-index:20;
+  touch-action:none;cursor:grab;
+  transition:box-shadow .15s;
+  -webkit-user-select:none;user-select:none;
 }
-.lesson-card:hover{
-  box-shadow:0 6px 22px rgba(245,158,11,.5);
-  border-color:#f59e0b;
-  transform:scale(1.04);
-}
-.lesson-card.dragging{
-  opacity:.75;
-  cursor:grabbing;
-  transform:scale(1.08) rotate(2deg);
-  box-shadow:0 12px 36px rgba(0,0,0,.6);
-  z-index:1000;
-}
+.lesson-card:hover{box-shadow:0 6px 22px rgba(245,158,11,.5);border-color:#f59e0b;}
 .card-icon{font-size:24px;line-height:1;margin-bottom:4px;}
 .card-title{font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;}
-.card-sub{font-size:9.5px;color:#6b7280;margin-top:2px;line-height:1.3;font-style:italic;}
+.card-sub{font-size:9.5px;color:#6b7280;margin-top:2px;font-style:italic;line-height:1.3;}
 
-/* ── COMPUTER ZONE ── */
+/* floating drag clone */
+.drag-clone{
+  position:fixed;pointer-events:none;z-index:9999;
+  background:#fff;color:#1f2937;border-radius:10px;padding:10px 12px;
+  border:2px solid #f59e0b;
+  box-shadow:0 14px 40px rgba(0,0,0,.65);
+  opacity:.9;
+  transform:scale(1.09) rotate(3deg);
+  -webkit-user-select:none;user-select:none;
+  transition:none;
+}
+
 #computer-zone{
-  width:268px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+  width:268px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
   background:rgba(0,0,0,.25);
-  border-left:1px solid rgba(255,255,255,.08);
-  padding:16px;
-  flex-shrink:0;
+  border-left:1px solid rgba(255,255,255,.08);padding:16px;flex-shrink:0;
 }
-
-.monitor-body{
-  background:#2d3748;
-  border:5px solid #4a5568;
-  border-radius:10px;
-  padding:6px;
-  width:240px;
-  box-shadow:0 6px 20px rgba(0,0,0,.55);
-}
-.monitor-screen{
-  background:#f0f4f8;
-  border-radius:4px;
-  min-height:300px;
-  overflow:hidden;
-}
-.screen-bar{
-  background:#1d4ed8;
-  color:#fff;
-  font-size:9.5px;
-  font-weight:700;
-  padding:5px 8px;
-  display:flex;
-  align-items:center;
-  gap:5px;
-  letter-spacing:.4px;
-}
+.monitor-body{background:#2d3748;border:5px solid #4a5568;border-radius:10px;padding:6px;width:240px;box-shadow:0 6px 20px rgba(0,0,0,.55);}
+.monitor-screen{background:#f0f4f8;border-radius:4px;min-height:300px;overflow:hidden;}
+.screen-bar{background:#1d4ed8;color:#fff;font-size:9.5px;font-weight:700;padding:5px 8px;display:flex;align-items:center;gap:5px;}
 .sdots{display:flex;gap:3px;margin-right:4px;}
 .sdot{width:7px;height:7px;border-radius:50%;}
-
-#drop-zone{
-  padding:8px;
-  min-height:268px;
-  position:relative;
-  transition:background .2s;
-}
-#drop-zone.drag-over{background:rgba(29,78,216,.07);}
-
-.drop-hint{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  color:#9ca3af;
-  font-size:11px;
-  text-align:center;
-  pointer-events:none;
-}
+#drop-zone{padding:8px;min-height:268px;position:relative;transition:background .2s;}
+#drop-zone.drag-over{background:rgba(29,78,216,.09);}
+.drop-hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#9ca3af;font-size:11px;text-align:center;pointer-events:none;}
 .drop-hint-icon{font-size:30px;}
-
-.report-row{
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  border-radius:4px;
-  padding:3px 7px;
-  margin-bottom:3px;
-  font-size:9px;
-  color:#1d4ed8;
-  display:flex;
-  align-items:center;
-  gap:4px;
-  animation:slideIn .22s ease;
-}
+.report-row{background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:3px 7px;margin-bottom:3px;font-size:9px;color:#1d4ed8;display:flex;align-items:center;gap:4px;animation:slideIn .22s ease;}
 @keyframes slideIn{from{transform:translateX(-8px);opacity:0}to{transform:none;opacity:1}}
-
 .monitor-neck{width:50px;height:18px;background:#4a5568;margin:0 auto;}
 .monitor-foot{width:106px;height:8px;background:#4a5568;border-radius:4px;margin:0 auto;}
-
-/* ── PROGRESS ── */
 #prog-wrap{width:240px;}
-.prog-header{
-  font-size:10px;
-  color:rgba(255,255,255,.5);
-  margin-bottom:4px;
-  display:flex;
-  justify-content:space-between;
-}
-.prog-track{
-  background:rgba(255,255,255,.1);
-  border-radius:4px;
-  height:9px;
-  overflow:hidden;
-}
-#prog-fill{
-  height:100%;
-  background:linear-gradient(90deg,#10b981,#34d399);
-  border-radius:4px;
-  width:0%;
-  transition:width .4s cubic-bezier(.34,1.56,.64,1);
-}
+.prog-header{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px;display:flex;justify-content:space-between;}
+.prog-track{background:rgba(255,255,255,.1);border-radius:4px;height:9px;overflow:hidden;}
+#prog-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:4px;width:0%;transition:width .4s cubic-bezier(.34,1.56,.64,1);}
 
-/* ── OVERLAYS ── */
-.overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.9);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:500;
-}
-.ocard{
-  background:#fff;
-  color:#111827;
-  border-radius:20px;
-  padding:38px 44px;
-  text-align:center;
-  max-width:440px;
-  width:92%;
-}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:500;}
+.ocard{background:#fff;color:#111827;border-radius:20px;padding:38px 44px;text-align:center;max-width:440px;width:92%;}
 .ocard h1{font-size:26px;font-weight:800;color:#f59e0b;margin-bottom:4px;}
-.ocard .sub{font-size:13.5px;color:#6b7280;margin-bottom:20px;}
-.score-big{
-  font-size:52px;
-  font-weight:800;
-  color:#1d4ed8;
-  font-family:monospace;
-  margin:14px 0 6px;
-}
+.sub{font-size:13.5px;color:#6b7280;margin-bottom:20px;}
+.score-big{font-size:52px;font-weight:800;color:#1d4ed8;font-family:monospace;margin:14px 0 6px;}
 .score-lbl{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;}
-.hs-badge{
-  background:#fef3c7;
-  color:#92400e;
-  font-size:12px;
-  font-weight:700;
-  padding:4px 14px;
-  border-radius:20px;
-  display:inline-block;
-  margin:8px 0 14px;
-}
+.hs-badge{background:#fef3c7;color:#92400e;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;display:inline-block;margin:8px 0 14px;}
 .tier{font-size:22px;margin:6px 0 4px;}
-.btn-row{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
-.btn{
-  padding:12px 24px;
-  border-radius:10px;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
-  border:none;
-  transition:filter .15s,transform .1s;
-}
+.brow{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.btn{padding:12px 24px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:filter .15s,transform .1s;}
 .btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
 .btn:active{transform:scale(.97);}
-.btn-y{background:#f59e0b;color:#fff;}
-.btn-g{background:#e5e7eb;color:#374151;}
-.btn-b{background:#1d4ed8;color:#fff;}
-
+.by{background:#f59e0b;color:#fff;}
+.bg{background:#e5e7eb;color:#374151;}
+.bb{background:#1d4ed8;color:#fff;}
 .share-ok{font-size:11px;color:#10b981;margin-top:10px;display:none;}
-.warn-box{
-  background:#fef3c7;
-  border:1px solid #fcd34d;
-  border-radius:8px;
-  padding:10px 14px;
-  font-size:12.5px;
-  color:#92400e;
-  margin:12px 0;
-  line-height:1.5;
-}
-.gdesc{
-  font-size:13.5px;
-  color:#6b7280;
-  margin:10px 0 16px;
-  line-height:1.65;
-}
+.warn-box{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#92400e;margin:12px 0;line-height:1.5;}
+.gdesc{font-size:13.5px;color:#6b7280;margin:10px 0 16px;line-height:1.65;}
 
-/* ── MARGARET THE RULER LADY ── */
-#lady-wrap{
-  position:fixed;
-  bottom:-10px;
-  right:-240px;
-  z-index:600;
-  transition:right 1.2s cubic-bezier(.16,1,.3,1);
-}
+#lady-wrap{position:fixed;bottom:-10px;right:-240px;z-index:600;transition:right 1.2s cubic-bezier(.16,1,.3,1);}
 #lady-wrap.in{right:10px;}
-
-#bubble{
-  background:#fef3c7;
-  border:2.5px solid #f59e0b;
-  border-radius:14px;
-  padding:10px 14px;
-  font-size:13px;
-  font-weight:700;
-  color:#92400e;
-  text-align:center;
-  max-width:170px;
-  line-height:1.5;
-  margin-bottom:8px;
-  position:relative;
-  opacity:0;
-  transform:translateY(8px);
-  transition:opacity .4s 1.3s,transform .4s 1.3s;
-}
+#bubble{background:#fef3c7;border:2.5px solid #f59e0b;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:700;color:#92400e;text-align:center;max-width:170px;line-height:1.5;margin-bottom:8px;position:relative;opacity:0;transform:translateY(8px);transition:opacity .4s 1.3s,transform .4s 1.3s;}
 #bubble.in{opacity:1;transform:none;}
-#bubble::after{
-  content:'';
-  position:absolute;
-  bottom:-12px;right:32px;
-  border:10px solid transparent;
-  border-top-color:#f59e0b;
-}
-
-@keyframes whack{
-  0%,100%{transform:rotate(0deg);}
-  20%{transform:rotate(-18deg);}
-  45%{transform:rotate(6deg);}
-  65%{transform:rotate(-12deg);}
-  85%{transform:rotate(4deg);}
-}
-#lady-svg.whacking{animation:whack .55s ease 1.5s 4;}
-
-/* screen shake on lose */
-@keyframes shake{
-  0%,100%{transform:none}
-  15%{transform:translateX(-6px) rotate(-.5deg)}
-  30%{transform:translateX(6px) rotate(.5deg)}
-  45%{transform:translateX(-4px)}
-  60%{transform:translateX(4px)}
-  75%{transform:translateX(-2px)}
-}
+#bubble::after{content:'';position:absolute;bottom:-12px;right:32px;border:10px solid transparent;border-top-color:#f59e0b;}
+@keyframes whack{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-18deg)}45%{transform:rotate(6deg)}65%{transform:rotate(-12deg)}85%{transform:rotate(4deg)}}
+#lady-svg.wk{animation:whack .55s ease 1.5s 4;}
+@keyframes shake{0%,100%{transform:none}15%{transform:translateX(-6px) rotate(-.5deg)}35%{transform:translateX(6px) rotate(.5deg)}55%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 body.shaking{animation:shake .5s ease 1.5s 2;}
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <div id="header">
   <div>
     <div class="logo">🛢️ BBB TANK SERVICES</div>
@@ -324,10 +115,8 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
   <div id="timer">0:00</div>
 </div>
 
-<!-- ── GAME ── -->
 <div id="game-area">
   <div id="cards-zone"></div>
-
   <div id="computer-zone">
     <div class="monitor-body">
       <div class="monitor-screen">
@@ -342,76 +131,54 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
         <div id="drop-zone">
           <div class="drop-hint" id="drop-hint">
             <div class="drop-hint-icon">📂</div>
-            <div>Drop lessons here<br>to file your report</div>
+            <div>Drag lessons here<br>to file your report</div>
           </div>
         </div>
       </div>
     </div>
     <div class="monitor-neck"></div>
     <div class="monitor-foot"></div>
-
     <div id="prog-wrap">
-      <div class="prog-header">
-        <span>Report progress</span>
-        <span id="prog-count">0 / 12</span>
-      </div>
+      <div class="prog-header"><span>Report progress</span><span id="prog-count">0 / 12</span></div>
       <div class="prog-track"><div id="prog-fill"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ── MARGARET ── -->
+<!-- Margaret -->
 <div id="lady-wrap">
   <div id="bubble">You didn't learn<br>your lesson! 📏</div>
   <svg id="lady-svg" width="190" height="270" viewBox="0 0 190 270" xmlns="http://www.w3.org/2000/svg">
-    <!-- Gray hair back volume -->
     <ellipse cx="90" cy="68" rx="46" ry="42" fill="#9ca3af"/>
-    <!-- Side hair locks -->
     <ellipse cx="50" cy="84" rx="15" ry="30" fill="#9ca3af"/>
     <ellipse cx="130" cy="84" rx="15" ry="30" fill="#9ca3af"/>
-    <!-- Hair bun -->
     <ellipse cx="90" cy="38" rx="22" ry="20" fill="#6b7280"/>
     <ellipse cx="90" cy="30" rx="14" ry="12" fill="#4b5563"/>
-    <!-- Face -->
     <ellipse cx="90" cy="72" rx="31" ry="33" fill="#f5d0a9"/>
-    <!-- Furrowed brows - STERN -->
     <path d="M70 56 Q79 51 88 55" stroke="#3b2010" stroke-width="2.8" fill="none" stroke-linecap="round"/>
     <path d="M92 55 Q101 51 110 56" stroke="#3b2010" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    <!-- Inner brow crease -->
     <line x1="88" y1="53" x2="92" y2="53" stroke="#3b2010" stroke-width="2" stroke-linecap="round"/>
-    <!-- Eyes (narrow, judgmental) -->
     <ellipse cx="80" cy="64" rx="5" ry="4" fill="#1c1008"/>
     <ellipse cx="100" cy="64" rx="5" ry="4" fill="#1c1008"/>
     <circle cx="82" cy="62" r="1.5" fill="white"/>
     <circle cx="102" cy="62" r="1.5" fill="white"/>
-    <!-- Glasses -->
     <rect x="69" y="59" width="22" height="14" rx="4" fill="none" stroke="#374151" stroke-width="1.8"/>
     <rect x="93" y="59" width="22" height="14" rx="4" fill="none" stroke="#374151" stroke-width="1.8"/>
     <line x1="69" y1="66" x2="63" y2="65" stroke="#374151" stroke-width="1.8"/>
     <line x1="115" y1="66" x2="121" y2="65" stroke="#374151" stroke-width="1.8"/>
     <line x1="91" y1="66" x2="93" y2="66" stroke="#374151" stroke-width="1.8"/>
-    <!-- Nose -->
     <ellipse cx="90" cy="75" rx="3" ry="2.2" fill="#e8b890"/>
-    <!-- Thin disapproving mouth -->
     <path d="M78 85 Q90 81 102 85" stroke="#b0735a" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <!-- Neck -->
     <rect x="81" y="100" width="18" height="13" rx="5" fill="#f5d0a9"/>
-    <!-- Purple dress body -->
     <path d="M60 113 Q57 145 55 178 Q72 185 90 185 Q108 185 125 178 Q123 145 120 113 Z" fill="#6d28d9"/>
-    <!-- Collar detail -->
     <path d="M74 113 L90 106 L106 113 L100 120 L90 115 L80 120 Z" fill="#5b21b6"/>
-    <!-- Left arm — pointing finger accusatory -->
     <line x1="60" y1="120" x2="22" y2="152" stroke="#f5d0a9" stroke-width="10" stroke-linecap="round"/>
     <circle cx="19" cy="155" r="8" fill="#f5d0a9"/>
-    <!-- Pointing finger -->
     <line x1="14" y1="152" x2="3" y2="142" stroke="#f5d0a9" stroke-width="5" stroke-linecap="round"/>
-    <!-- Right arm — ruler raised high -->
     <line x1="120" y1="116" x2="155" y2="76" stroke="#f5d0a9" stroke-width="10" stroke-linecap="round"/>
     <circle cx="158" cy="72" r="8" fill="#f5d0a9"/>
-    <!-- RULER -->
     <rect x="150" y="14" width="15" height="76" rx="3" fill="#fbbf24"/>
     <rect x="150" y="14" width="15" height="76" rx="3" fill="none" stroke="#d97706" stroke-width="1.2"/>
-    <!-- Ruler tick marks -->
     <line x1="153" y1="22" x2="163" y2="22" stroke="#d97706" stroke-width="1"/>
     <line x1="153" y1="30" x2="163" y2="30" stroke="#d97706" stroke-width="1"/>
     <line x1="153" y1="38" x2="163" y2="38" stroke="#d97706" stroke-width="1"/>
@@ -420,45 +187,31 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
     <line x1="153" y1="62" x2="163" y2="62" stroke="#d97706" stroke-width="1"/>
     <line x1="153" y1="70" x2="163" y2="70" stroke="#d97706" stroke-width="1"/>
     <line x1="153" y1="78" x2="163" y2="78" stroke="#d97706" stroke-width="1"/>
-    <!-- Ruler text "12 IN" -->
-    <text x="157.5" y="50" font-size="5" fill="#92400e" text-anchor="middle" font-weight="700">12</text>
-    <text x="157.5" y="56" font-size="4" fill="#92400e" text-anchor="middle">IN</text>
-    <!-- Legs -->
     <rect x="73" y="178" width="18" height="56" rx="7" fill="#4b5563"/>
     <rect x="99" y="178" width="18" height="56" rx="7" fill="#4b5563"/>
-    <!-- Shoes (sensible heels) -->
     <ellipse cx="82" cy="235" rx="15" ry="8" fill="#1c1c1e"/>
     <rect x="76" y="226" width="8" height="10" rx="2" fill="#333"/>
     <ellipse cx="108" cy="235" rx="15" ry="8" fill="#1c1c1e"/>
     <rect x="102" y="226" width="8" height="10" rx="2" fill="#333"/>
-    <!-- Dress hem ruffles -->
     <path d="M55 175 Q72 183 90 182 Q108 183 125 175 Q120 186 90 190 Q60 186 55 175Z" fill="#5b21b6"/>
   </svg>
 </div>
 
-<!-- ── START SCREEN ── -->
+<!-- START -->
 <div class="overlay" id="start-overlay">
   <div class="ocard">
     <div style="font-size:46px;margin-bottom:8px">🛢️</div>
     <h1 style="color:#0f1923;font-size:22px">BBB TANK SERVICES</h1>
     <div style="font-size:10px;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Lessons Learned Simulator</div>
-    <div class="gdesc">
-      Your oil tank storage project was a <em>learning experience</em>.<br>
-      Drag all 12 lesson cards onto the Lessons Learned Report on the computer — fast — before <strong>Margaret</strong> comes back with her ruler. 📏
-    </div>
-    <div class="warn-box">
-      ⏱️ You have <strong>90 seconds</strong> to complete the report.<br>
-      Miss the deadline and Margaret <em>will</em> find you.
-    </div>
+    <div class="gdesc">Your oil tank storage project was a <em>learning experience</em>.<br>Drag all 12 lesson cards onto the computer report fast — before <strong>Margaret</strong> arrives with her ruler. 📏</div>
+    <div class="warn-box">⏱️ You have <strong>90 seconds</strong>. Miss the deadline and Margaret <em>will</em> find you.</div>
     <div style="font-size:11px;color:#9ca3af;margin:8px 0 2px">Personal Best</div>
     <div id="start-hs" style="font-size:22px;font-family:monospace;font-weight:700;color:#1d4ed8">—</div>
-    <div class="btn-row">
-      <button class="btn btn-y" onclick="startGame()">🚀 Start Report</button>
-    </div>
+    <div class="brow"><button class="btn by" onclick="startGame()">🚀 Start Report</button></div>
   </div>
 </div>
 
-<!-- ── WIN SCREEN ── -->
+<!-- WIN -->
 <div class="overlay" id="win-overlay" style="display:none">
   <div class="ocard">
     <div style="font-size:46px;margin-bottom:4px">🎉</div>
@@ -469,231 +222,255 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
     <div class="hs-badge" id="win-hs-badge" style="display:none">🏆 New Personal Best!</div>
     <div style="font-size:11px;color:#9ca3af">Best: <strong id="win-hs">—</strong></div>
     <div class="tier" id="win-tier">⭐⭐⭐</div>
-    <div class="btn-row">
-      <button class="btn btn-g" onclick="restartGame()">🔄 Try Again</button>
-      <button class="btn btn-b" onclick="shareScore()">📤 Share Score</button>
+    <div class="brow">
+      <button class="btn bg" onclick="restartGame()">🔄 Try Again</button>
+      <button class="btn bb" onclick="shareScore()">📤 Share Score</button>
     </div>
-    <div class="share-ok" id="share-ok">✓ Copied to clipboard! Send it to your friends.</div>
+    <div class="share-ok" id="share-ok">✓ Copied! Send it to your friends.</div>
   </div>
 </div>
 
-<!-- ── LOSE SCREEN ── -->
+<!-- LOSE -->
 <div class="overlay" id="lose-overlay" style="display:none">
   <div class="ocard">
     <div style="font-size:46px;margin-bottom:4px">📏</div>
     <h1 style="color:#ef4444">WHACK!</h1>
     <div class="sub">Margaret got you. You didn't learn your lesson.</div>
-    <div style="font-size:14px;color:#6b7280;margin:12px 0;line-height:1.6">
-      You only filed <strong id="lose-count">0</strong> of 12 lessons<br>
-      before time ran out. Shameful.
-    </div>
+    <div style="font-size:14px;color:#6b7280;margin:12px 0;line-height:1.6">You only filed <strong id="lose-count">0</strong> of 12 lessons before time ran out. Shameful.</div>
     <div style="font-size:22px;margin-bottom:16px">🪲</div>
-    <div class="btn-row">
-      <button class="btn btn-y" onclick="restartGame()">🔄 Try Again</button>
-    </div>
+    <div class="brow"><button class="btn by" onclick="restartGame()">🔄 Try Again</button></div>
   </div>
 </div>
 
 <script>
-const TOTAL = 12;
-const TIME_LIMIT = 90;
-
+const TOTAL = 12, TIME_LIMIT = 90;
 const LESSONS = [
-  {id:1,  icon:'📋', title:'No API 650 Review',          sub:'Tank standard? Never opened it.'},
-  {id:2,  icon:'⚡', title:'Cathodic Protection Skipped', sub:'Corrosion ate the budget too.'},
-  {id:3,  icon:'💧', title:'Inadequate Secondary Containment', sub:'Berm = decorative garden edging.'},
-  {id:4,  icon:'🏗️', title:'Wrong Foundation Type',       sub:'Bearing capacity: optional?'},
-  {id:5,  icon:'📅', title:'Permits Filed Way Too Late',  sub:'Regulators did not enjoy that.'},
-  {id:6,  icon:'🔍', title:'No Hydrostatic Test',         sub:'Tank integrity: unverified vibes.'},
-  {id:7,  icon:'🌱', title:'Missing Baseline Survey',     sub:'What contamination? That\'s old.'},
-  {id:8,  icon:'📊', title:'Zero Change Order Log',       sub:'Budget doubled. Surprised face.'},
-  {id:9,  icon:'🚨', title:'No Emergency Response Plan',  sub:'We\'ll figure spills out live.'},
-  {id:10, icon:'📐', title:'As-Builts Never Done',        sub:'The tank is... somewhere out there.'},
-  {id:11, icon:'🛡️', title:'Overfill Protection Missing', sub:'Tank filled. Then overfilled.'},
-  {id:12, icon:'📄', title:'Contractor Certs Expired',    sub:'Their insurance lapsed in 2019.'},
+  {id:1,  icon:'📋', title:'No API 650 Review',               sub:'Tank standard? Never opened it.'},
+  {id:2,  icon:'⚡', title:'Cathodic Protection Skipped',      sub:'Corrosion ate the budget too.'},
+  {id:3,  icon:'💧', title:'Inadequate Containment',           sub:'Berm = decorative garden edging.'},
+  {id:4,  icon:'🏗️', title:'Wrong Foundation Type',            sub:'Bearing capacity: optional?'},
+  {id:5,  icon:'📅', title:'Permits Filed Way Too Late',       sub:'Regulators did not enjoy that.'},
+  {id:6,  icon:'🔍', title:'No Hydrostatic Test',              sub:'Tank integrity: unverified vibes.'},
+  {id:7,  icon:'🌱', title:'Missing Baseline Survey',          sub:"What contamination? That's old."},
+  {id:8,  icon:'📊', title:'Zero Change Order Log',            sub:'Budget doubled. Surprised face.'},
+  {id:9,  icon:'🚨', title:'No Emergency Response Plan',       sub:"We'll figure spills out live."},
+  {id:10, icon:'📐', title:'As-Builts Never Done',             sub:'The tank is... somewhere.'},
+  {id:11, icon:'🛡️', title:'Overfill Protection Missing',      sub:'Tank filled. Then overfilled.'},
+  {id:12, icon:'📄', title:'Contractor Certs Expired',         sub:'Insurance lapsed in 2019.'},
 ];
+const ROTS = [-6,-4,-8,5,3,7,-3,6,-5,4,-7,2];
 
-const ROTATIONS = [-6,-4,-8,5,3,7,-3,6,-5,4,-7,2];
+let timerInt = null, elapsed = 0, dropped = 0, gameActive = false;
 
-let timerInt = null;
-let elapsed = 0;
-let dropped = 0;
-let active = false;
-let dragId = null;
+// ── POINTER DRAG STATE ──
+let pId = null, pCard = null, pLid = null, pClone = null, pOx = 0, pOy = 0;
 
 const $ = id => document.getElementById(id);
+const fmt = s => Math.floor(s/60) + ':' + String(s % 60).padStart(2,'0');
+const getHS = () => { try { const v = localStorage.getItem('bbb_hs'); return v ? parseInt(v) : null; } catch(e) { return null; } };
+const setHS = s => { try { localStorage.setItem('bbb_hs', s); } catch(e) {} };
 
-function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
-
-function getHS(){try{const v=localStorage.getItem('bbb_hs');return v?parseInt(v):null;}catch(e){return null;}}
-function setHS(s){try{localStorage.setItem('bbb_hs',s);}catch(e){}}
-
-function startGame(){
-  $('start-overlay').style.display='none';
-  elapsed=0; dropped=0; active=true; dragId=null;
-  $('timer').textContent='0:00';
+function startGame() {
+  $('start-overlay').style.display = 'none';
+  elapsed = 0; dropped = 0; gameActive = true;
+  pId = null; pCard = null; pLid = null;
+  if (pClone) { pClone.remove(); pClone = null; }
+  $('timer').textContent = '0:00';
   $('timer').classList.remove('urgent');
-  $('prog-fill').style.width='0%';
-  $('prog-count').textContent='0 / '+TOTAL;
-  $('drop-zone').innerHTML='';
-  const h=document.createElement('div');
-  h.className='drop-hint';h.id='drop-hint';
-  h.innerHTML='<div class="drop-hint-icon">📂</div><div>Drop lessons here<br>to file your report</div>';
+  $('prog-fill').style.width = '0%';
+  $('prog-count').textContent = '0 / ' + TOTAL;
+  $('drop-zone').innerHTML = '';
+  const h = document.createElement('div');
+  h.className = 'drop-hint'; h.id = 'drop-hint';
+  h.innerHTML = '<div class="drop-hint-icon">📂</div><div>Drag lessons here<br>to file your report</div>';
   $('drop-zone').appendChild(h);
   document.body.classList.remove('shaking');
   renderCards();
-  timerInt=setInterval(()=>{
-    if(!active)return;
+  timerInt = setInterval(() => {
+    if (!gameActive) return;
     elapsed++;
-    $('timer').textContent=fmt(elapsed);
-    if(elapsed>=TIME_LIMIT-20) $('timer').classList.add('urgent');
-    if(elapsed>=TIME_LIMIT) triggerLose();
-  },1000);
+    $('timer').textContent = fmt(elapsed);
+    if (elapsed >= TIME_LIMIT - 20) $('timer').classList.add('urgent');
+    if (elapsed >= TIME_LIMIT) triggerLose();
+  }, 1000);
 }
 
-function renderCards(){
-  const zone=$('cards-zone');
-  zone.innerHTML='';
-  const W=zone.offsetWidth||560;
-  const H=zone.offsetHeight||460;
-  const CW=162, CH=86;
-  const margin=14;
-  const positions=scatter(TOTAL,W,H,CW,CH,margin);
+function scatter(n, W, H, cw, ch, m) {
+  const pos = []; let tries = 0;
+  while (pos.length < n && tries < 600) {
+    tries++;
+    const x = m + Math.random() * (W - cw - m * 2);
+    const y = m + Math.random() * (H - ch - m * 2);
+    let ok = true;
+    for (const p of pos) { if (Math.abs(p.x - x) < cw + 8 && Math.abs(p.y - y) < ch + 8) { ok = false; break; } }
+    if (ok) pos.push({x, y});
+  }
+  while (pos.length < n) {
+    const i = pos.length;
+    pos.push({ x: m + (i % 4) * (cw + 10), y: m + Math.floor(i / 4) * (ch + 10) });
+  }
+  return pos;
+}
 
-  LESSONS.forEach((lesson,i)=>{
-    const card=document.createElement('div');
-    card.className='lesson-card';
-    card.id='lcard-'+lesson.id;
-    card.draggable=true;
-    card.dataset.id=lesson.id;
-    card.style.left=positions[i].x+'px';
-    card.style.top=positions[i].y+'px';
-    card.style.transform=`rotate(${ROTATIONS[i]}deg)`;
-    card.innerHTML=`<div class="card-icon">${lesson.icon}</div><div class="card-title">${lesson.title}</div><div class="card-sub">${lesson.sub}</div>`;
-    card.addEventListener('dragstart',dStart);
-    card.addEventListener('dragend',dEnd);
+function renderCards() {
+  const zone = $('cards-zone');
+  zone.innerHTML = '';
+  const W = zone.offsetWidth || 500, H = zone.offsetHeight || 460;
+  const pos = scatter(TOTAL, W, H, 162, 86, 14);
+
+  LESSONS.forEach((lesson, i) => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    card.id = 'card-' + lesson.id;
+    card.dataset.id = lesson.id;
+    card.style.left = pos[i].x + 'px';
+    card.style.top  = pos[i].y + 'px';
+    card.style.transform = `rotate(${ROTS[i]}deg)`;
+    card.innerHTML = `<div class="card-icon">${lesson.icon}</div><div class="card-title">${lesson.title}</div><div class="card-sub">${lesson.sub}</div>`;
+    bindPointer(card, lesson);
     zone.appendChild(card);
   });
-
-  const dz=$('drop-zone');
-  dz.addEventListener('dragover',dOver);
-  dz.addEventListener('drop',dDrop);
-  dz.addEventListener('dragleave',dLeave);
 }
 
-function scatter(n,W,H,cw,ch,m){
-  const positions=[];
-  let tries=0;
-  while(positions.length<n&&tries<600){
-    tries++;
-    const x=m+Math.random()*(W-cw-m*2);
-    const y=m+Math.random()*(H-ch-m*2);
-    let ok=true;
-    for(const p of positions){
-      if(Math.abs(p.x-x)<cw+8&&Math.abs(p.y-y)<ch+8){ok=false;break;}
+// ── POINTER EVENTS (unified mouse + touch for all browsers) ──
+function bindPointer(card, lesson) {
+  card.addEventListener('pointerdown', e => {
+    if (!gameActive) return;
+    e.preventDefault();
+    card.setPointerCapture(e.pointerId);
+    pId = e.pointerId;
+    pCard = card;
+    pLid = lesson.id;
+
+    const r = card.getBoundingClientRect();
+    pOx = e.clientX - r.left;
+    pOy = e.clientY - r.top;
+
+    // Create floating ghost clone
+    pClone = document.createElement('div');
+    pClone.className = 'drag-clone';
+    pClone.style.width  = r.width  + 'px';
+    pClone.style.left   = (e.clientX - pOx) + 'px';
+    pClone.style.top    = (e.clientY - pOy) + 'px';
+    pClone.innerHTML = card.innerHTML;
+    document.body.appendChild(pClone);
+
+    card.style.opacity = '0.25';
+    card.style.transform = `rotate(${ROTS[LESSONS.findIndex(l=>l.id===lesson.id)]}deg)`;
+  });
+
+  card.addEventListener('pointermove', e => {
+    if (e.pointerId !== pId || !pClone) return;
+    pClone.style.left = (e.clientX - pOx) + 'px';
+    pClone.style.top  = (e.clientY - pOy) + 'px';
+
+    const dz = $('drop-zone');
+    const r  = dz.getBoundingClientRect();
+    dz.classList.toggle('drag-over',
+      e.clientX >= r.left && e.clientX <= r.right &&
+      e.clientY >= r.top  && e.clientY <= r.bottom
+    );
+  });
+
+  card.addEventListener('pointerup', e => {
+    if (e.pointerId !== pId) return;
+    releaseDrag(e.clientX, e.clientY, true);
+  });
+
+  card.addEventListener('pointercancel', e => {
+    if (e.pointerId !== pId) return;
+    releaseDrag(0, 0, false);
+  });
+}
+
+function releaseDrag(cx, cy, checkDrop) {
+  const dz = $('drop-zone');
+  dz.classList.remove('drag-over');
+  if (pClone) { pClone.remove(); pClone = null; }
+
+  if (checkDrop && gameActive) {
+    const r = dz.getBoundingClientRect();
+    if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+      dropLesson(pLid);
+    } else {
+      if (pCard) pCard.style.opacity = '1';
     }
-    if(ok)positions.push({x,y});
+  } else {
+    if (pCard) pCard.style.opacity = '1';
   }
-  while(positions.length<n){
-    const idx=positions.length;
-    const cols=4;
-    positions.push({x:m+(idx%cols)*(cw+10),y:m+Math.floor(idx/cols)*(ch+10)});
-  }
-  return positions;
+  pId = null; pCard = null; pLid = null;
 }
 
-function dStart(e){
-  dragId=e.currentTarget.dataset.id;
-  e.currentTarget.classList.add('dragging');
-  e.dataTransfer.effectAllowed='move';
-}
-function dEnd(e){e.currentTarget.classList.remove('dragging');}
-function dOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';$('drop-zone').classList.add('drag-over');}
-function dLeave(){$('drop-zone').classList.remove('drag-over');}
+function dropLesson(id) {
+  if (!id || !gameActive) return;
+  const lesson = LESSONS.find(l => l.id == id);
+  if (!lesson) return;
+  const card = $('card-' + id);
+  if (!card || card.style.display === 'none') return;
 
-function dDrop(e){
-  e.preventDefault();
-  $('drop-zone').classList.remove('drag-over');
-  if(!dragId||!active)return;
-  const lesson=LESSONS.find(l=>l.id==dragId);
-  if(!lesson)return;
-  const card=$('lcard-'+dragId);
-  if(!card||card.style.display==='none')return;
+  const hint = $('drop-hint');
+  if (hint) hint.remove();
 
-  const hint=$('drop-hint');
-  if(hint)hint.remove();
-
-  const row=document.createElement('div');
-  row.className='report-row';
-  row.innerHTML=`<span>${lesson.icon}</span><span>${lesson.title}</span>`;
+  const row = document.createElement('div');
+  row.className = 'report-row';
+  row.innerHTML = `<span>${lesson.icon}</span><span>${lesson.title}</span>`;
   $('drop-zone').appendChild(row);
 
-  card.style.display='none';
+  card.style.display = 'none';
   dropped++;
-  dragId=null;
-
-  const pct=(dropped/TOTAL)*100;
-  $('prog-fill').style.width=pct+'%';
-  $('prog-count').textContent=dropped+' / '+TOTAL;
-
-  if(dropped>=TOTAL)triggerWin();
+  $('prog-fill').style.width = (dropped / TOTAL * 100) + '%';
+  $('prog-count').textContent = dropped + ' / ' + TOTAL;
+  if (dropped >= TOTAL) triggerWin();
 }
 
-function triggerWin(){
-  active=false;
-  clearInterval(timerInt);
-  const hs=getHS();
-  const isNew=!hs||elapsed<hs;
-  if(isNew)setHS(elapsed);
-  $('win-time').textContent=fmt(elapsed);
-  $('win-hs').textContent=isNew?fmt(elapsed):(hs?fmt(hs):'—');
-  $('win-hs-badge').style.display=isNew?'inline-block':'none';
-  let tier='⭐ You cut it very close...';
-  if(elapsed<=25)tier='🔥 LEGENDARY PM! Margaret is shaking.';
-  else if(elapsed<=40)tier='⭐⭐⭐ Excellent! Barely broke a sweat.';
-  else if(elapsed<=60)tier='⭐⭐ Solid work. Keep practicing.';
-  $('win-tier').textContent=tier;
-  $('win-overlay').style.display='flex';
+function triggerWin() {
+  gameActive = false; clearInterval(timerInt);
+  const hs = getHS(), isNew = !hs || elapsed < hs;
+  if (isNew) setHS(elapsed);
+  $('win-time').textContent = fmt(elapsed);
+  $('win-hs').textContent = isNew ? fmt(elapsed) : (hs ? fmt(hs) : '—');
+  $('win-hs-badge').style.display = isNew ? 'inline-block' : 'none';
+  let tier = '⭐ Cutting it close…';
+  if      (elapsed <= 25) tier = '🔥 LEGENDARY! Margaret is shaking.';
+  else if (elapsed <= 40) tier = '⭐⭐⭐ Excellent work!';
+  else if (elapsed <= 60) tier = '⭐⭐ Solid — keep practicing.';
+  $('win-tier').textContent = tier;
+  $('win-overlay').style.display = 'flex';
 }
 
-function triggerLose(){
-  active=false;
-  clearInterval(timerInt);
-  $('lose-count').textContent=dropped;
+function triggerLose() {
+  gameActive = false; clearInterval(timerInt);
+  if (pClone) { pClone.remove(); pClone = null; }
+  $('lose-count').textContent = dropped;
   document.body.classList.add('shaking');
-  const lw=$('lady-wrap');
-  const bb=$('bubble');
-  lw.classList.add('in');
-  bb.classList.add('in');
-  $('lady-svg').classList.add('whacking');
-  setTimeout(()=>{ $('lose-overlay').style.display='flex'; },2800);
+  $('lady-wrap').classList.add('in');
+  $('bubble').classList.add('in');
+  $('lady-svg').classList.add('wk');
+  setTimeout(() => $('lose-overlay').style.display = 'flex', 2800);
 }
 
-function restartGame(){
-  $('win-overlay').style.display='none';
-  $('lose-overlay').style.display='none';
+function restartGame() {
+  $('win-overlay').style.display = 'none';
+  $('lose-overlay').style.display = 'none';
   $('lady-wrap').classList.remove('in');
   $('bubble').classList.remove('in');
-  $('lady-svg').classList.remove('whacking');
+  $('lady-svg').classList.remove('wk');
   document.body.classList.remove('shaking');
   clearInterval(timerInt);
   startGame();
 }
 
-function shareScore(){
-  const t=fmt(elapsed);
-  const hs=getHS();
-  const hsTxt=hs?` (Best: ${fmt(hs)})`:'';
-  const txt=`🛢️ BBB Tank Services — Lessons Learned!\nI filed my report in ${t}${hsTxt} ⏱️\nCan YOU beat me? Don't let Margaret catch you! 📏`;
-  navigator.clipboard.writeText(txt).then(()=>{
-    $('share-ok').style.display='block';
-    setTimeout(()=>$('share-ok').style.display='none',3000);
-  }).catch(()=>alert(txt));
+function shareScore() {
+  const t = fmt(elapsed), hs = getHS();
+  const txt = `🛢️ BBB Tank Services — Lessons Learned!\nFiled my report in ${t}${hs ? ` (Best: ${fmt(hs)})` : ''} ⏱️\nCan YOU beat me? Don't let Margaret catch you! 📏`;
+  navigator.clipboard.writeText(txt)
+    .then(() => { $('share-ok').style.display = 'block'; setTimeout(() => $('share-ok').style.display = 'none', 3000); })
+    .catch(() => alert(txt));
 }
 
-window.addEventListener('load',()=>{
-  const hs=getHS();
-  $('start-hs').textContent=hs?fmt(hs):'—';
+window.addEventListener('load', () => {
+  const hs = getHS();
+  $('start-hs').textContent = hs ? fmt(hs) : '—';
 });
 </script>
 </body>
