@@ -268,8 +268,8 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
     <div style="font-size:44px;margin-bottom:8px">🛢️</div>
     <h1 style="color:#0f1923;font-size:21px">BBB TANK SERVICES</h1>
     <div style="font-size:9.5px;color:#9ca3af;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Lessons Learned Simulator</div>
-    <div class="gdesc">Your oil tank project was a <em>learning experience</em>. Drag all 12 lesson cards onto the report before <strong>Margaret</strong> arrives with her ruler. 📏</div>
-    <div class="warn-box">⏱️ You have <strong>90 seconds</strong>. Miss the deadline and Margaret <em>will</em> find you.</div>
+    <div class="gdesc">Your oil tank project was a <em>learning experience</em>. Drag all 8 lesson cards onto the report before <strong>Margaret</strong> arrives with her ruler. 📏</div>
+    <div class="warn-box">⏱️ You have <strong>45 seconds</strong>. Miss the deadline and Margaret <em>will</em> find you.</div>
     <div style="font-size:11px;color:#9ca3af;margin:8px 0 2px">Personal Best</div>
     <div id="start-hs" style="font-size:22px;font-family:monospace;font-weight:700;color:#1d4ed8">—</div>
     <div class="brow"><button class="btn by" onclick="startGame()">🚀 Start Report</button></div>
@@ -301,29 +301,25 @@ body.shaking{animation:shake .5s ease 1.5s 2;}
     <div style="font-size:44px;margin-bottom:4px">📏</div>
     <h1 style="color:#ef4444">WHACK!</h1>
     <div class="sub">Margaret got you. You didn't learn your lesson.</div>
-    <div style="font-size:13px;color:#6b7280;margin:12px 0;line-height:1.6">You only filed <strong id="lose-count">0</strong> of 12 lessons before time ran out. Shameful.</div>
+    <div style="font-size:13px;color:#6b7280;margin:12px 0;line-height:1.6">You only filed <strong id="lose-count">0</strong> of 8 lessons before time ran out. Shameful.</div>
     <div style="font-size:20px;margin-bottom:14px">🪲</div>
     <div class="brow"><button class="btn by" onclick="restartGame()">🔄 Try Again</button></div>
   </div>
 </div>
 
 <script>
-const TOTAL = 12, TIME_LIMIT = 60;
+const TOTAL = 8, TIME_LIMIT = 45;
 const LESSONS = [
-  {id:1,  icon:'📋', title:'No API 650 Review',            sub:'Tank standard? Never opened it.'},
-  {id:2,  icon:'⚡', title:'Engineering Delays',            sub:'Corrosion ate the budget too.'},
-  {id:3,  icon:'💧', title:'Consumable Ovverun    ',        sub:'Berm = decorative garden edging.'},
-  {id:4,  icon:'🏗️', title:'Wrong Material Ordered',         sub:'Bearing capacity: optional?'},
-  {id:5,  icon:'📅', title:'Permits Filed Way Too Late',    sub:'Regulators did not enjoy that.'},
-  {id:6,  icon:'🔍', title:'No Hydro Test',                 sub:'Tank integrity: unverified vibes.'},
-  {id:7,  icon:'🌱', title:'Missing Verticality Survey',       sub:"What contamination? That's old."},
-  {id:8,  icon:'📊', title:'Zero Change Order Log',         sub:'Budget doubled. Surprised face.'},
-  {id:9,  icon:'🚨', title:'No Emergency Response Plan',    sub:"We'll figure spills out live."},
-  {id:10, icon:'📐', title:'As-Builts Never Done',          sub:'The tank is... somewhere.'},
-  {id:11, icon:'🛡️', title:'Job Book Missing',              sub:'Where are the weld Maps.'},
-  {id:12, icon:'📄', title:'Contractor Certs Expired',      sub:'Insurance lapsed in 2019.'},
+  {id:1, icon:'💸', title:'Consumable Overrun',              sub:'We bought HOW much welding wire?'},
+  {id:2, icon:'📓', title:'Where Is the Job Book?',          sub:"Last seen: Steve's truck. Maybe."},
+  {id:3, icon:'🤷', title:'Was There a Change Order?',       sub:"We assumed that was included."},
+  {id:4, icon:'🪪', title:'Safety Council Cards Expired',    sub:'Expired in 2022. Nobody noticed.'},
+  {id:5, icon:'💰', title:'Payroll Theft',                   sub:'Buddy clocked in from the beach.'},
+  {id:6, icon:'📐', title:'Engineering Delays',              sub:"Drawings still being 'refined'."},
+  {id:7, icon:'🗺️', title:'Where Are the Weld Maps?',        sub:'Great question. Nobody knows.'},
+  {id:8, icon:'🔩', title:'Bought Wrong Materials',          sub:'Grade B instead of A. Whoops.'},
 ];
-const ROTS = [-6,-4,-8,5,3,7,-3,6,-5,4,-7,2];
+const ROTS = [-6, 4, -8, 5, -3, 7, -5, 3];
 
 let timerInt = null, elapsed = 0, dropped = 0, gameActive = false;
 
@@ -356,7 +352,7 @@ function startGame() {
     if (!gameActive) return;
     elapsed++;
     $('timer').textContent = fmt(elapsed);
-    if (elapsed >= TIME_LIMIT - 20) $('timer').classList.add('urgent');
+    if (elapsed >= TIME_LIMIT - 15) $('timer').classList.add('urgent');
     if (elapsed >= TIME_LIMIT) triggerLose();
   }, 1000);
 }
@@ -506,9 +502,9 @@ function triggerWin() {
   $('win-hs').textContent = isNew ? fmt(elapsed) : (hs ? fmt(hs) : '—');
   $('win-hs-badge').style.display = isNew ? 'inline-block' : 'none';
   let tier = '⭐ Cutting it close…';
-  if      (elapsed <= 25) tier = '🔥 LEGENDARY! Margaret is shaking.';
-  else if (elapsed <= 40) tier = '⭐⭐⭐ Excellent work!';
-  else if (elapsed <= 60) tier = '⭐⭐ Solid — keep practicing.';
+  if      (elapsed <= 12) tier = '🔥 LEGENDARY! Margaret is shaking.';
+  else if (elapsed <= 22) tier = '⭐⭐⭐ Excellent work!';
+  else if (elapsed <= 35) tier = '⭐⭐ Solid — keep practicing.';
   $('win-tier').textContent = tier;
   $('win-overlay').style.display = 'flex';
 }
